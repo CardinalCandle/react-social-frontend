@@ -11,32 +11,9 @@ import {
 import { ReactComponent as AppIcon } from "../images/icon.svg";
 import axios from "axios";
 import { Link } from "react-router-dom";
-const styles = {
-  form: {
-    textAlign: "center",
-  },
-  image: {
-    margin: "20px auto",
-  },
-  pageTitle: {
-    margin: "10px auto",
-  },
-  TextField: {
-    margin: "10px auto",
-  },
-  button: {
-    marginTop: 20,
-    position: "relative",
-  },
-  customError: {
-    color: "red",
-    fontSize: "0.8rem",
-  },
-  progress: {
-    position: "absolute",
-  },
-};
-
+const styles = (theme) => ({
+  ...theme.spreadIt,
+});
 class Login extends Component {
   constructor() {
     super();
@@ -57,6 +34,7 @@ class Login extends Component {
     axios
       .post("/login", userData)
       .then((res) => {
+        localStorage.setItem("FBIdToken", `Bearer ${res.data.token}`);
         this.setState({ loading: false, loggedIn: true });
         window.location.href = "/";
       })
@@ -83,8 +61,8 @@ class Login extends Component {
         <Grid item sm />
         <Grid item sm>
           <AppIcon
-            height={75}
-            width={75}
+            height={60}
+            width={60}
             fill="indigo"
             className={classes.image}
           />

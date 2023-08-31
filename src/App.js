@@ -26,8 +26,33 @@ const theme = createTheme({
       contrastText: "#fff",
     },
   },
-  typography: {
-    useNextVariants: true,
+  spreadIt: {
+    typography: {
+      useNextVariants: true,
+    },
+    form: {
+      textAlign: "center",
+    },
+    image: {
+      margin: "20px auto",
+    },
+    pageTitle: {
+      margin: "10px auto",
+    },
+    TextField: {
+      margin: "10px auto",
+    },
+    button: {
+      marginTop: 20,
+      position: "relative",
+    },
+    customError: {
+      color: "red",
+      fontSize: "0.8rem",
+    },
+    progress: {
+      position: "absolute",
+    },
   },
 });
 
