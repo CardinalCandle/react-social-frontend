@@ -1,78 +1,66 @@
 import React, { Component } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import "./App.css";
-import {
-  ThemeProvider as MuiThemeProvider,
-  createTheme,
-} from "@material-ui/core/styles";
-import Navbar from "./components/Navbar";
+import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
+import createMuiTheme from "@material-ui/core/styles/createMuiTheme";
+import jwtDecode from "jwt-decode";
+// Redux
+import { Provider } from "react-redux";
+import store from "./redux/store";
+import { SET_AUTHENTICATED } from "./redux/types";
+import { logoutUser, getUserData } from "./redux/actions/userActions";
+// Components
+import Navbar from "./components/layout/Navbar";
+import themeObject from "./util/theme";
+import AuthRoute from "./util/AuthRoute";
 // Pages
-import Home from "./pages/home";
-import Login from "./pages/login";
-import Signup from "./pages/signup";
+import home from "./pages/home";
+import login from "./pages/login";
+import signup from "./pages/signup";
+import user from "./pages/user";
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      light: "#3374dc",
-      main: "#0051d4",
-      dark: "#003994",
-      contrastText: "#fff",
-    },
-    secondary: {
-      light: "#ffc933",
-      main: "#ffbb00",
-      dark: "#b28300",
-      contrastText: "#fff",
-    },
-  },
-  spreadIt: {
-    typography: {
-      useNextVariants: true,
-    },
-    form: {
-      textAlign: "center",
-    },
-    image: {
-      margin: "20px auto",
-    },
-    pageTitle: {
-      margin: "10px auto",
-    },
-    TextField: {
-      margin: "10px auto",
-    },
-    button: {
-      marginTop: 20,
-      position: "relative",
-    },
-    customError: {
-      color: "red",
-      fontSize: "0.8rem",
-    },
-    progress: {
-      position: "absolute",
-    },
-  },
-});
+import axios from "axios";
 
-export class App extends Component {
+const theme = createMuiTheme(themeObject);
+
+axios.defaults.baseURL =
+  "https://europe-west1-react-social-784b8.cloudfunctions.net/api";
+
+const token = localStorage.FBIdToken;
+if (token) {
+  const decodedToken = jwtDecode(token);
+  if (decodedToken.exp * 1000 < Date.now()) {
+    store.dispatch(logoutUser());
+    window.location.href = "/login";
+  } else {
+    store.dispatch({ type: SET_AUTHENTICATED });
+    axios.defaults.headers.common["Authorization"] = token;
+    store.dispatch(getUserData());
+  }
+}
+
+class App extends Component {
   render() {
     return (
       <MuiThemeProvider theme={theme}>
-        <div className="App">
-          App
-          <BrowserRouter>
+        <Provider store={store}>
+          <Router>
             <Navbar />
             <div className="container">
-              <Routes>
-                <Route exact path="/" element={<Home />} />
-                <Route exact path="/login" element={<Login />} />
-                <Route exact path="/signup" element={<Signup />} />
-              </Routes>
+              <Switch>
+                <Route exact path="/" component={home} />
+                <AuthRoute exact path="/login" component={login} />
+                <AuthRoute exact path="/signup" component={signup} />
+                <Route exact path="/users/:handle" component={user} />
+                <Route
+                  exact
+                  path="/users/:handle/post/:postId"
+                  component={user}
+                />
+              </Switch>
             </div>
-          </BrowserRouter>
-        </div>
+          </Router>
+        </Provider>
       </MuiThemeProvider>
     );
   }
